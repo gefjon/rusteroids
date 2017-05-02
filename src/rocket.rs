@@ -1,51 +1,98 @@
 extern crate sdl2;
 
-use sdl2::rect::{Rect};
 use sdl2::pixels::{Color};
 use super::globals::*;
+use sdl2::gfx::primitives::DrawRenderer;
+use sdl2::keyboard::{Scancode};
 
 pub struct RocketShip {
-    x: i32,
-    y: i32,
-    width: u32,
-    height: u32,
-    dx: i32,
-    dy: i32,
+    x: f32,
+    y: f32,
+    semi_width: f32,
+    semi_height: f32,
+    angle_facing: f32,
+    dx: f32,
+    dy: f32,
     color: Color,
+    acceleration: f32,
+    spin_speed: f32,
 }
 
 impl RocketShip {
-    fn make_rect(&self) -> Rect {
-        Rect::new(self.x, self.y, self.width, self.height)
-    }
-    pub fn update(&mut self, ddx: i32, ddy: i32) {
-        self.dx += ddx;
-        self.dy += ddy;
+    pub fn update(&mut self, keyboard_state: &sdl2::keyboard::KeyboardState) {
+        if keyboard_state.is_scancode_pressed(Scancode::W) {
+            self.dx += (self.angle_facing.cos() * self.acceleration);
+            self.dy += (self.angle_facing.sin() * self.acceleration);
+        }
+        if keyboard_state.is_scancode_pressed(Scancode::A) {
+            self.angle_facing -= self.spin_speed;
+        }
+        if keyboard_state.is_scancode_pressed(Scancode::D) {
+            self.angle_facing += self.spin_speed;
+        }
+        
         self.x += self.dx;
-        if (self.x + (self.width as i32)) < 0 {
-            self.x += WINDOW_DIMENSIONS.0 as i32;
-        }
-        self.x %= WINDOW_DIMENSIONS.0 as i32;
         self.y += self.dy;
-        if (self.y + (self.height as i32)) < 0 {
-            self.y += WINDOW_DIMENSIONS.1 as i32;
+        
+        if (self.x + self.semi_width) < 0.0f32 {
+            self.x += WINDOW_DIMENSIONS.0 as f32;
         }
-        self.y %= WINDOW_DIMENSIONS.1 as i32;
+        self.x %= WINDOW_DIMENSIONS.0 as f32;
+        
+        self.y += self.dy;
+        if (self.y + self.semi_height) < 0.0f32 {
+            self.y += WINDOW_DIMENSIONS.1 as f32;
+        }
+        self.y %= WINDOW_DIMENSIONS.1 as f32;
     }
-    pub fn draw(&self, mut renderer: &mut sdl2::render::Renderer) {
-        renderer.set_draw_color(self.color);
-        renderer.fill_rect(self.make_rect())
+    pub fn make_trigon(&self) -> (i16, i16, i16, i16, i16, i16) {
+        (
+            (self.x
+             + (self.angle_facing.cos() * self.semi_height)).round()
+                as i16,
+            
+            (self.y
+             + (self.angle_facing.sin() * self.semi_height)).round()
+                as i16,
+            
+            (self.x
+             - (self.angle_facing.cos() * self.semi_height)
+             + (self.angle_facing.sin() * self.semi_width)).round()
+                as i16,
+            
+            (self.y
+             - (self.angle_facing.sin() * self.semi_height)
+             + (self.angle_facing.cos() * self.semi_width)).round()
+                as i16,
+            
+            (self.x
+             - (self.angle_facing.cos() * self.semi_height)
+             - (self.angle_facing.sin() * self.semi_width)).round()
+                as i16,
+            
+            (self.y
+             - (self.angle_facing.sin() * self.semi_height)
+             - (self.angle_facing.cos() * self.semi_width)).round()
+                as i16,
+        )
+    }
+    pub fn draw(&self, renderer: &sdl2::render::Renderer) {
+        let (x1, y1, x2, y2, x3, y3) = self.make_trigon();
+        renderer.filled_trigon(x1, y1, x2, y2, x3, y3, self.color)
             .unwrap();
     }
-    pub fn new(starting_x: i32, starting_y: i32, width: u32, height: u32) -> RocketShip {
+    pub fn new(starting_x: f32, starting_y: f32, width: f32, height: f32) -> RocketShip {
         RocketShip {
             x: starting_x,
             y: starting_y,
-            width: width,
-            height: height,
-            dx: 0,
-            dy: 0,
+            semi_width: width / 2.0f32,
+            semi_height: height / 2.0f32,
+            angle_facing: 0.0f32,
+            dx: 0.0f32,
+            dy: 0.0f32,
             color: ROCKET_COLOR,
+            acceleration: 0.2f32,
+            spin_speed: 0.001f32,
         }
     }
 }

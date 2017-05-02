@@ -26,14 +26,14 @@ fn main() {
 
     let renderer = create_window(&video_context).renderer().build().unwrap();
 
-    let asteroids: Vec<Asteroid> = vec![Asteroid::new(16, 16, 8, 3, 2)];
+    let asteroids: Vec<Asteroid> = vec![];
 
     let mut world = World {
         player: RocketShip::new(
-            ((WINDOW_DIMENSIONS.0 as i32) / 2) - 8,
-            ((WINDOW_DIMENSIONS.1 as i32) / 2) - 8,
-            16,
-            16
+            ((WINDOW_DIMENSIONS.0 / 2) as f32),
+            ((WINDOW_DIMENSIONS.1 / 2) as f32),
+            128.0f32,
+            128.0f32
         ),
         renderer: renderer,
         asteroids: asteroids,
@@ -65,8 +65,8 @@ fn create_window(video_context: &sdl2::VideoSubsystem) -> sdl2::video::Window {
 }
 
 fn update(mut world: &mut World) -> bool {
-    let mut ddx: i32 = 0;
-    let mut ddy: i32 = 0;
+    let mut ddx: f32 = 0.0f32;
+    let mut ddy: f32 = 0.0f32;
     let mut event_pump = world.sdl_context.event_pump().unwrap();
     for event in event_pump.poll_iter() {
         match event {
@@ -76,19 +76,7 @@ fn update(mut world: &mut World) -> bool {
         }
     }
     let keyboard_state = event_pump.keyboard_state();
-    if keyboard_state.is_scancode_pressed(Scancode::W) {
-        ddy -= 1;
-    }
-    if keyboard_state.is_scancode_pressed(Scancode::S) {
-        ddy += 1;
-    }
-    if keyboard_state.is_scancode_pressed(Scancode::A) {
-        ddx -= 1;
-    }
-    if keyboard_state.is_scancode_pressed(Scancode::D) {
-        ddx += 1;
-    }
-    world.player.update(ddx, ddy);
+    world.player.update(&keyboard_state);
     let mut new_asteroids: Vec<Asteroid> = Vec::new();
     for asteroid in world.asteroids.iter() {
         new_asteroids.push(asteroid.update());
@@ -104,7 +92,7 @@ fn draw_background(mut renderer: &mut sdl2::render::Renderer) {
 
 fn draw(mut world: &mut World) {
     draw_background(&mut world.renderer);
-    world.player.draw(&mut world.renderer);
+    world.player.draw(&world.renderer);
     for asteroid in world.asteroids.iter() {
         asteroid.draw(&world.renderer);
     }
