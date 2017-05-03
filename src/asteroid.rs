@@ -15,6 +15,8 @@ pub struct Asteroid {
 
 impl Asteroid {
     pub fn draw(&self, renderer: &sdl2::render::Renderer) {
+        // a very simple draw function
+        // asteroids are just circles
         renderer.filled_circle::<Color>(
             self.x.round() as i16,
             self.y.round() as i16,
@@ -23,8 +25,12 @@ impl Asteroid {
         )
             .unwrap();
     }
-    pub fn update(&self) -> Asteroid {
+    pub fn update(&self) -> Option<Asteroid> {
         let mut x = self.x + self.dx;
+
+        // this algorithm for screen-wrapping is the same as the one in rocket.rs
+        // wrap around when the whole asteroid is offscreen and wrap it to just offscreen
+        // for visual cleanliness
         if (x + self.radius) < 0.0f32 {
             x += (WINDOW_DIMENSIONS.0 as f32) + self.radius * 2.0f32;
         }
@@ -39,14 +45,18 @@ impl Asteroid {
             y -= (WINDOW_DIMENSIONS.1 as f32) + self.radius * 2.0f32;
         }
 
-        Asteroid {
+        // one day asteroids will interact and be destroyed
+        // but not yet
+        Some(
+            Asteroid {
             x: x,
             y: y,
             dx: self.dx,
             dy: self.dy,
             radius: self.radius,
             color: self.color,
-        }
+            }
+        )
     }
     pub fn new(starting_x: f32, starting_y: f32, radius: f32, direction: f32, vel: f32) -> Asteroid {
         Asteroid {
