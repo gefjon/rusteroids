@@ -13,5 +13,10 @@ pub const ASTEROID_COLOR: Color = Color::RGB(86, 31, 3);
 pub const ROCKET_DIMENSIONS: (f32, f32) = (16.0f32, 32.0f32);
 pub const ROCKET_ACCELERATION: f32 = 0.2f32;
 pub const ROCKET_SPIN_SPEED: f32 = 0.2f32;
+pub const ROCKET_SHOT_DELAY: u8 = 8u8;
+
+pub const SHOT_SPEED: f32 = 30.0f32;
+pub const SHOT_COLOR: Color = Color::RGB(255, 0, 212);
+pub const SHOT_RADIUS: f32 = 3.0f32;
 
 pub const MAX_FRAMERATE: u32 = 30u32;

@@ -4,6 +4,7 @@ use sdl2::pixels::{Color};
 use super::globals::*;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::keyboard::{Scancode};
+use super::shooting::Shot;
 
 pub struct RocketShip {
     x: f32,
@@ -16,10 +17,11 @@ pub struct RocketShip {
     color: Color,
     acceleration: f32,
     spin_speed: f32,
+    shot_delay_counter: u8,
 }
 
 impl RocketShip {
-    pub fn update(&mut self, keyboard_state: &sdl2::keyboard::KeyboardState) {
+    pub fn update(&mut self, keyboard_state: &sdl2::keyboard::KeyboardState) -> Option<Shot> {
         if keyboard_state.is_scancode_pressed(Scancode::W) {
             self.dx += self.angle_facing.cos() * self.acceleration;
             self.dy += self.angle_facing.sin() * self.acceleration;
@@ -44,6 +46,20 @@ impl RocketShip {
             self.y += WINDOW_DIMENSIONS.1 as f32;
         }
         self.y %= WINDOW_DIMENSIONS.1 as f32;
+
+        if (
+            (self.shot_delay_counter <= 0) &&
+            keyboard_state.is_scancode_pressed(Scancode::Space)
+        ) {
+            self.shot_delay_counter += ROCKET_SHOT_DELAY;
+            return Some(
+                Shot::new(self.x, self.y, self.angle_facing)
+            );
+        } else if (self.shot_delay_counter > 0) {
+            self.shot_delay_counter -= 1;
+        }
+        return None;
+        
     }
     pub fn make_trigon(&self) -> (i16, i16, i16, i16, i16, i16) {
         (
@@ -99,6 +115,7 @@ impl RocketShip {
             color: ROCKET_COLOR,
             acceleration: ROCKET_ACCELERATION,
             spin_speed: ROCKET_SPIN_SPEED,
+            shot_delay_counter: 0u8,
         }
     }
 }

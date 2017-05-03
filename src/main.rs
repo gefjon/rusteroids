@@ -7,10 +7,12 @@ use sdl2::keyboard::{Scancode};
 mod rocket;
 mod globals;
 mod asteroid;
+mod shooting;
 
 use globals::*;
 use rocket::RocketShip;
 use asteroid::Asteroid;
+use shooting::Shot;
 
 struct World<'a> {
     player: RocketShip,
@@ -18,6 +20,7 @@ struct World<'a> {
     sdl_context: sdl2::Sdl,
     asteroids: Vec<Asteroid>,
     framerate_controller: FPSManager,
+    shots: Vec<Shot>,
 }
 
 fn main() {
@@ -26,16 +29,15 @@ fn main() {
 
     let renderer = create_window(&video_context).renderer().build().unwrap();
 
-    let asteroids: Vec<Asteroid> = vec![];
-
     let mut world = World {
         player: RocketShip::new(
             ((WINDOW_DIMENSIONS.0 / 2) as f32),
             ((WINDOW_DIMENSIONS.1 / 2) as f32),
         ),
         renderer: renderer,
-        asteroids: asteroids,
+        asteroids: vec![],
         sdl_context: sdl2_context,
+        shots: vec![],
         framerate_controller: FPSManager::new(),
     };
 
@@ -72,12 +74,24 @@ fn update(mut world: &mut World) -> bool {
         }
     }
     let keyboard_state = event_pump.keyboard_state();
-    world.player.update(&keyboard_state);
+    if let Some(shot) = world.player.update(&keyboard_state) {
+        world.shots.push(shot);
+    }
+    
     let mut new_asteroids: Vec<Asteroid> = Vec::new();
     for asteroid in world.asteroids.iter() {
         new_asteroids.push(asteroid.update());
     }
     world.asteroids = new_asteroids;
+
+    let mut new_shots: Vec<Shot> = Vec::new();
+    for shot in world.shots.iter() {
+        if let Some(new_shot) = shot.update() {
+            new_shots.push(new_shot);
+        }
+    }
+    world.shots = new_shots;
+            
     return true;
 }
 
@@ -89,9 +103,15 @@ fn draw_background(mut renderer: &mut sdl2::render::Renderer) {
 fn draw(mut world: &mut World) {
     draw_background(&mut world.renderer);
     world.player.draw(&world.renderer);
+    
     for asteroid in world.asteroids.iter() {
         asteroid.draw(&world.renderer);
     }
+
+    for shot in world.shots.iter() {
+        shot.draw(&world.renderer);
+    }
+    
     world.renderer.present();
     world.framerate_controller.delay();
 }

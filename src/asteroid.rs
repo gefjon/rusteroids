@@ -15,7 +15,13 @@ pub struct Asteroid {
 
 impl Asteroid {
     pub fn draw(&self, renderer: &sdl2::render::Renderer) {
-        renderer.filled_circle::<Color>(self.x.round() as i16, self.y.round() as i16, self.radius as i16, self.color).unwrap();
+        renderer.filled_circle::<Color>(
+            self.x.round() as i16,
+            self.y.round() as i16,
+            self.radius as i16,
+            self.color
+        )
+            .unwrap();
     }
     pub fn update(&self) -> Asteroid {
         let mut x = self.x + self.dx;
