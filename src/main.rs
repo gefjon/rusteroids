@@ -32,8 +32,6 @@ fn main() {
         player: RocketShip::new(
             ((WINDOW_DIMENSIONS.0 / 2) as f32),
             ((WINDOW_DIMENSIONS.1 / 2) as f32),
-            128.0f32,
-            128.0f32
         ),
         renderer: renderer,
         asteroids: asteroids,
@@ -65,8 +63,6 @@ fn create_window(video_context: &sdl2::VideoSubsystem) -> sdl2::video::Window {
 }
 
 fn update(mut world: &mut World) -> bool {
-    let mut ddx: f32 = 0.0f32;
-    let mut ddy: f32 = 0.0f32;
     let mut event_pump = world.sdl_context.event_pump().unwrap();
     for event in event_pump.poll_iter() {
         match event {
