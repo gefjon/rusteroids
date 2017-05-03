@@ -92,7 +92,7 @@ fn update(mut world: &mut World) -> bool {
     let mut new_asteroids: Vec<Asteroid> = Vec::new();
     for asteroid in world.asteroids.iter() {
         if let Some(new_asteroid) = asteroid.update() {
-            new_asteroids.push(asteroid.update());
+            new_asteroids.push(new_asteroid);
         }
     }
     world.asteroids = new_asteroids;
