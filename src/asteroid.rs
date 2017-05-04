@@ -18,35 +18,45 @@ pub enum Sizes {
 impl Sizes {
     fn get_smaller_size(self) -> Option<Sizes> {
         match self {
-            Tiny => None,
-            Small => Some(Sizes::Tiny),
-            Medium => Some(Sizes::Small),
-            Large => Some(Sizes::Medium),
-            Huge => Some(Sizes::Large),
+            Sizes::Tiny => None,
+            Sizes::Small => Some(Sizes::Tiny),
+            Sizes::Medium => Some(Sizes::Small),
+            Sizes::Large => Some(Sizes::Medium),
+            Sizes::Huge => Some(Sizes::Large),
+        }
+    }
+    fn get_radius(self) -> f32 {
+        match self {
+            Sizes::Tiny => 6.0f32,
+            Sizes::Small => 10.0f32,
+            Sizes::Medium => 18.0f32,
+            Sizes::Large => 24.0f32,
+            Sizes::Huge => 32.0f32,
         }
     }
 }
 
 pub struct Asteroid {
-    radius: f32,
-    x: f32,
-    y: f32,
-    dx: f32,
-    dy: f32,
-    color: Color,
-    size: Sizes,
-    angle: f32,
-    speed: f32,
+    pub radius: f32,
+    pub x: f32,
+    pub y: f32,
+    pub dx: f32,
+    pub dy: f32,
+    pub color: Color,
+    pub size: Sizes,
+    pub angle: f32,
+    pub speed: f32,
 }
 
 impl Asteroid {
     fn little_baby_asteroids(&self) -> Vec<Asteroid> {
         if let Some(size) = self.size.get_smaller_size() {
+            let new_speed: f32 = self.speed * 1.5f32;
             return vec![
-                Asteroid::new(self.x, self.y, self.angle, self.speed, size),
-                Asteroid::new(self.x, self.y, self.angle + std::f32::consts::FRAC_PI_2, self.speed, size),
-                Asteroid::new(self.x, self.y, self.angle + std::f32::consts::PI, self.speed, size),
-                Asteroid::new(self.x, self.y, self.angle - std::f32::consts::FRAC_PI_2, self.speed, size)
+                Asteroid::new(self.x, self.y, self.angle, new_speed, size),
+                Asteroid::new(self.x, self.y, self.angle + std::f32::consts::FRAC_PI_2, new_speed, size),
+                Asteroid::new(self.x, self.y, self.angle + std::f32::consts::PI, new_speed, size),
+                Asteroid::new(self.x, self.y, self.angle - std::f32::consts::FRAC_PI_2, new_speed, size)
             ];
         }
         return vec![];
@@ -106,7 +116,7 @@ impl Asteroid {
     }
     pub fn new(starting_x: f32, starting_y: f32, direction: f32, vel: f32, size: Sizes) -> Asteroid {
         Asteroid {
-            radius: 16.0f32,
+            radius: size.get_radius(),
             x: starting_x,
             y: starting_y,
             dx: (direction.cos() * vel),
