@@ -35,7 +35,7 @@ fn main() {
             ((WINDOW_DIMENSIONS.1 / 2) as f32),
         ),
         renderer: renderer,
-        asteroids: vec![],
+        asteroids: vec![Asteroid::new(12.0f32, 12.0f32, 16.0f32, 1.0f32, 3.0f32, asteroid::Sizes::Medium)],
         sdl_context: sdl2_context,
         shots: vec![],
         framerate_controller: FPSManager::new(),
@@ -91,9 +91,7 @@ fn update(mut world: &mut World) -> bool {
     // and Some<Asteroid> otherwise
     let mut new_asteroids: Vec<Asteroid> = Vec::new();
     for asteroid in world.asteroids.iter() {
-        if let Some(new_asteroid) = asteroid.update() {
-            new_asteroids.push(new_asteroid);
-        }
+        new_asteroids.append(&mut asteroid.update(&world.shots));
     }
     world.asteroids = new_asteroids;
 

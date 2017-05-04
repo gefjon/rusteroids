@@ -3,6 +3,16 @@ extern crate sdl2;
 use sdl2::pixels::Color;
 use super::globals::*;
 use sdl2::gfx::primitives::DrawRenderer;
+use super::shooting::Shot;
+
+#[derive(Copy, Clone)]
+pub enum Sizes {
+    Tiny,
+    Small,
+    Medium,
+    Large,
+    Huge,
+}
 
 pub struct Asteroid {
     radius: f32,
@@ -11,6 +21,7 @@ pub struct Asteroid {
     dx: f32,
     dy: f32,
     color: Color,
+    size: Sizes,
 }
 
 impl Asteroid {
@@ -25,7 +36,7 @@ impl Asteroid {
         )
             .unwrap();
     }
-    pub fn update(&self) -> Option<Asteroid> {
+    pub fn update(&self, shots: &Vec<Shot>) -> Vec<Asteroid> {
         let mut x = self.x + self.dx;
 
         // this algorithm for screen-wrapping is the same as the one in rocket.rs
@@ -45,20 +56,29 @@ impl Asteroid {
             y -= (WINDOW_DIMENSIONS.1 as f32) + self.radius * 2.0f32;
         }
 
-        // one day asteroids will interact and be destroyed
-        // but not yet
-        Some(
-            Asteroid {
-            x: x,
-            y: y,
-            dx: self.dx,
-            dy: self.dy,
-            radius: self.radius,
-            color: self.color,
+        for shot in shots.iter() {
+            let xdist = x - shot.x;
+            let ydist = y - shot.y;
+            if ((xdist * xdist) + (ydist * ydist)) < (self.radius * self.radius) {
+                return vec![]
             }
-        )
+        }
+        // one day asteroids will interact and split and be destroyed
+        // but not yet
+        
+        vec![
+            Asteroid {
+                x: x,
+                y: y,
+                dx: self.dx,
+                dy: self.dy,
+                radius: self.radius,
+                color: self.color,
+                size: self.size,
+            }
+        ]
     }
-    pub fn new(starting_x: f32, starting_y: f32, radius: f32, direction: f32, vel: f32) -> Asteroid {
+    pub fn new(starting_x: f32, starting_y: f32, radius: f32, direction: f32, vel: f32, size: Sizes) -> Asteroid {
         Asteroid {
             radius: radius,
             x: starting_x,
@@ -66,6 +86,7 @@ impl Asteroid {
             dx: (direction.cos() * vel),
             dy: (direction.sin() * vel),
             color: ASTEROID_COLOR,
+            size: size,
         }
     }
 }

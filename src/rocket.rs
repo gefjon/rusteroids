@@ -68,7 +68,7 @@ impl RocketShip {
             return Some(
                 Shot::new(
                     self.x + (self.angle_facing.cos() * self.semi_height), // shot.x is the x-pos of the tip of the ship
-                    self.y + (self.angle_facing.cos() * self.semi_height), // shot.y is the y-pos of the tip of the ship
+                    self.y + (self.angle_facing.sin() * self.semi_height), // shot.y is the y-pos of the tip of the ship
                     self.angle_facing)
             );
         } else if (self.shot_delay_counter > 0) {

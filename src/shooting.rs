@@ -8,8 +8,8 @@ use sdl2::gfx::primitives::DrawRenderer;
 // just being Renderer methods
 
 pub struct Shot {
-    x: f32,
-    y: f32,
+    pub x: f32,
+    pub y: f32,
     dx: f32, // storing direction and calculating dy and dx every frame would be expensive
     dy: f32, // and since it's constant it doesn't matter
     radius: f32,
