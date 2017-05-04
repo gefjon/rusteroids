@@ -14,6 +14,18 @@ pub enum Sizes {
     Huge,
 }
 
+impl Sizes {
+    fn get_smaller_size(self) -> Option<Sizes> {
+        match self {
+            Tiny => None,
+            Small => Some(Tiny),
+            Medium => Some(Small),
+            Large => Some(Medium),
+            Huge => Some(Large),
+        }
+    }
+}
+
 pub struct Asteroid {
     radius: f32,
     x: f32,
@@ -25,6 +37,8 @@ pub struct Asteroid {
 }
 
 impl Asteroid {
+    fn little_baby_asteroids(&self) -> Vec<Asteroid> {
+        let newsize = 
     pub fn draw(&self, renderer: &sdl2::render::Renderer) {
         // a very simple draw function
         // asteroids are just circles
