@@ -35,7 +35,7 @@ fn main() {
             ((WINDOW_DIMENSIONS.1 / 2) as f32),
         ),
         renderer: renderer,
-        asteroids: vec![Asteroid::new(12.0f32, 12.0f32, 16.0f32, 1.0f32, 3.0f32, asteroid::Sizes::Medium)],
+        asteroids: vec![Asteroid::new(12.0f32, 12.0f32, 1.0f32, 3.0f32, asteroid::Sizes::Medium)],
         sdl_context: sdl2_context,
         shots: vec![],
         framerate_controller: FPSManager::new(),

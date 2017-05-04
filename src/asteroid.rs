@@ -4,6 +4,7 @@ use sdl2::pixels::Color;
 use super::globals::*;
 use sdl2::gfx::primitives::DrawRenderer;
 use super::shooting::Shot;
+use std;
 
 #[derive(Copy, Clone)]
 pub enum Sizes {
@@ -18,10 +19,10 @@ impl Sizes {
     fn get_smaller_size(self) -> Option<Sizes> {
         match self {
             Tiny => None,
-            Small => Some(Tiny),
-            Medium => Some(Small),
-            Large => Some(Medium),
-            Huge => Some(Large),
+            Small => Some(Sizes::Tiny),
+            Medium => Some(Sizes::Small),
+            Large => Some(Sizes::Medium),
+            Huge => Some(Sizes::Large),
         }
     }
 }
@@ -34,11 +35,22 @@ pub struct Asteroid {
     dy: f32,
     color: Color,
     size: Sizes,
+    angle: f32,
+    speed: f32,
 }
 
 impl Asteroid {
     fn little_baby_asteroids(&self) -> Vec<Asteroid> {
-        let newsize = 
+        if let Some(size) = self.size.get_smaller_size() {
+            return vec![
+                Asteroid::new(self.x, self.y, self.angle, self.speed, size),
+                Asteroid::new(self.x, self.y, self.angle + std::f32::consts::FRAC_PI_2, self.speed, size),
+                Asteroid::new(self.x, self.y, self.angle + std::f32::consts::PI, self.speed, size),
+                Asteroid::new(self.x, self.y, self.angle - std::f32::consts::FRAC_PI_2, self.speed, size)
+            ];
+        }
+        return vec![];
+    }
     pub fn draw(&self, renderer: &sdl2::render::Renderer) {
         // a very simple draw function
         // asteroids are just circles
@@ -74,11 +86,9 @@ impl Asteroid {
             let xdist = x - shot.x;
             let ydist = y - shot.y;
             if ((xdist * xdist) + (ydist * ydist)) < (self.radius * self.radius) {
-                return vec![]
+                return self.little_baby_asteroids();
             }
         }
-        // one day asteroids will interact and split and be destroyed
-        // but not yet
         
         vec![
             Asteroid {
@@ -89,18 +99,22 @@ impl Asteroid {
                 radius: self.radius,
                 color: self.color,
                 size: self.size,
+                speed: self.speed,
+                angle: self.angle,
             }
         ]
     }
-    pub fn new(starting_x: f32, starting_y: f32, radius: f32, direction: f32, vel: f32, size: Sizes) -> Asteroid {
+    pub fn new(starting_x: f32, starting_y: f32, direction: f32, vel: f32, size: Sizes) -> Asteroid {
         Asteroid {
-            radius: radius,
+            radius: 16.0f32,
             x: starting_x,
             y: starting_y,
             dx: (direction.cos() * vel),
             dy: (direction.sin() * vel),
             color: ASTEROID_COLOR,
             size: size,
+            angle: direction,
+            speed: vel,
         }
     }
 }
