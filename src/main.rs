@@ -87,15 +87,15 @@ fn update(mut world: &mut World) -> bool {
 
     // I can't figure out how to mutate elements of a Vec<T> owned by an object
     // so instead we make a new Vec<Asteroid> every time and replace the old one
-    // asteroid.update returns None if the asteroid dies
-    // and Some<Asteroid> otherwise
+    // asteroid.update returns a Vec<Asteroid> so that it can split or die
     let mut new_asteroids: Vec<Asteroid> = Vec::new();
     for asteroid in world.asteroids.iter() {
         new_asteroids.append(&mut asteroid.update(&world.shots));
     }
     world.asteroids = new_asteroids;
 
-    //Same thing as above
+    // Same thing as above
+    // shot.update returns an Option<Shot> so that it can disappear
     let mut new_shots: Vec<Shot> = Vec::new();
     for shot in world.shots.iter() {
         if let Some(new_shot) = shot.update() {
